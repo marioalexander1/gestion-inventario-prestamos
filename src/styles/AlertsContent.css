@@ -1,0 +1,41 @@
+/* Estilos para la sección de alertas */
+.alerts-container {
+  padding: 16px;
+}
+
+.alerts-paper {
+  padding: 16px;
+  background-color: #fff3cd; /* Amarillo claro para alertas */
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+}
+
+.alerts-title {
+  font-weight: bold;
+  color: #856404; /* Color oscuro para títulos */
+  margin-bottom: 16px;
+}
+
+.alerts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.alert-item {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Colores específicos por tipo de alerta (opcional, MUI los maneja) */
+.alert-item .MuiAlert-standardWarning {
+  background-color: #fff3cd;
+}
+
+.alert-item .MuiAlert-standardError {
+  background-color: #f8d7da;
+}
+
+.alert-item .MuiAlert-standardInfo {
+  background-color: #d1ecf1;
+}

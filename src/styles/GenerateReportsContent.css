@@ -1,0 +1,40 @@
+/* Estilos para la sección de generar reportes */
+.generate-reports-container {
+  padding: 16px;
+}
+
+.generate-reports-grid {
+  margin-top: 24px;
+}
+
+.generate-reports-paper {
+  padding: 16px;
+  background-color: #f0f8ff; /* Azul claro para reportes */
+  border-radius: 8px;
+}
+
+.generate-reports-title {
+  font-weight: bold;
+  color: #0066cc;
+}
+
+/* Estilos para formulario (placeholder) */
+.generate-reports-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.generate-reports-button {
+  align-self: flex-start;
+  background-color: #0066cc;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.generate-reports-button:hover {
+  background-color: #004499;
+}

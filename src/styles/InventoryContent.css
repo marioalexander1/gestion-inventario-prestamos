@@ -1,0 +1,52 @@
+/* Estilos para la tabla de inventario */
+.inventory-table {
+  height: 400px;
+  width: 100%;
+  padding: 16px;
+}
+
+.inventory-table .MuiDataGrid-cell {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.inventory-table .MuiDataGrid-columnHeaders {
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+
+/* Estilos para el estado (chips de color) */
+.status-available {
+  background-color: #4caf50; /* Verde para disponible */
+  color: white;
+  padding: 8px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.status-low-stock {
+  background-color: #ff9800; /* Naranja para bajo stock */
+  color: white;
+  padding: 8px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* Estilos para botones */
+.inventory-buttons {
+  margin-top: 16px;
+  display: flex;
+  gap: 16px;
+}
+
+/* Estilos para el modal */
+.inventory-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  background-color: white;
+  box-shadow: 24px;
+  padding: 32px;
+  border-radius: 8px;
+}

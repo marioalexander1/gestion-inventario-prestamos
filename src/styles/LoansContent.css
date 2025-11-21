@@ -1,0 +1,61 @@
+/* Estilos para tarjetas de préstamos */
+.loans-grid {
+  margin-top: 24px;
+}
+
+.loan-card {
+  padding: 16px;
+  transition: box-shadow 0.3s;
+}
+
+.loan-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.loan-status {
+  color: #ff9800; /* Naranja para activo */
+}
+
+/* Estilos para botones */
+.loans-buttons {
+  margin-top: 16px;
+}
+
+/* Estilos para el modal */
+.loans-modal {
+  position: absolute;
+  top: 50%;
+  left: '50%';
+  transform: translate(-50%, -50%);
+  width: 400px;
+  background-color: white;
+  box-shadow: 24px;
+  padding: 32px;
+  border-radius: 8px;
+}
+.loans-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 350px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background-color: white;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  padding: 32px;
+  border-radius: 8px;
+}
+
+.loan-card {
+  padding: 16px;
+  transition: box-shadow 0.3s ease;
+}
+
+.loan-card:hover {
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.loan-status {
+  color: #ff9800; /* naranja para estado activo */
+}
