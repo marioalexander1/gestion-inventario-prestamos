@@ -1,0 +1,21 @@
+{
+  "files": {
+    "main.css": "/gestion-inventario-prestamos/static/css/main.cba88ef4.css",
+    "main.js": "/gestion-inventario-prestamos/static/js/main.66044635.js",
+    "static/js/781.7d9c56e0.chunk.js": "/gestion-inventario-prestamos/static/js/781.7d9c56e0.chunk.js",
+    "static/js/549.dd8939e8.chunk.js": "/gestion-inventario-prestamos/static/js/549.dd8939e8.chunk.js",
+    "static/js/502.aac0ca8d.chunk.js": "/gestion-inventario-prestamos/static/js/502.aac0ca8d.chunk.js",
+    "static/js/453.75b9cf98.chunk.js": "/gestion-inventario-prestamos/static/js/453.75b9cf98.chunk.js",
+    "index.html": "/gestion-inventario-prestamos/index.html",
+    "main.cba88ef4.css.map": "/gestion-inventario-prestamos/static/css/main.cba88ef4.css.map",
+    "main.66044635.js.map": "/gestion-inventario-prestamos/static/js/main.66044635.js.map",
+    "781.7d9c56e0.chunk.js.map": "/gestion-inventario-prestamos/static/js/781.7d9c56e0.chunk.js.map",
+    "549.dd8939e8.chunk.js.map": "/gestion-inventario-prestamos/static/js/549.dd8939e8.chunk.js.map",
+    "502.aac0ca8d.chunk.js.map": "/gestion-inventario-prestamos/static/js/502.aac0ca8d.chunk.js.map",
+    "453.75b9cf98.chunk.js.map": "/gestion-inventario-prestamos/static/js/453.75b9cf98.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.cba88ef4.css",
+    "static/js/main.66044635.js"
+  ]
+}
