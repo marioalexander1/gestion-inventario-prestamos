@@ -5,6 +5,7 @@ import {
   Toolbar,
   List,
   ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   AppBar,
@@ -111,22 +112,27 @@ export default function DashboardLayout() {
       </Toolbar>
       <List>
         {menuItems.map(({ text, icon, key }) => (
-          <ListItem 
-            button 
-            key={key} 
-            onClick={() => handleMenuClick(key)} 
-            sx={{ 
-              bgcolor: selectedSection === key ? '#34495e' : 'transparent',
-              '&:hover': { bgcolor: '#34495e' }
-            }}
-          >
+          <ListItem key={key} disablePadding>
+            <ListItemButton
+              selected={selectedSection === key}
+              onClick={() => handleMenuClick(key)}
+              sx={{
+                '&:hover': { bgcolor: '#34495e' },
+                '&.Mui-selected': {
+                  bgcolor: '#34495e',
+                  '&:hover': { bgcolor: '#34495e' },
+                },
+              }}
+            >
             <ListItemIcon sx={{ color: '#56CCF2' }}>{icon}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
+            <ListItemText primary={text} />  
+            </ListItemButton>
+          </ListItem> 
         ))}
       </List>
     </div>
   );
+
 
   const renderContent = () => {
     switch (selectedSection) {
