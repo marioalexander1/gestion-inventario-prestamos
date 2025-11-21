@@ -1,59 +1,125 @@
-import React, { useState } from 'react';
-import { Box, Drawer, Toolbar, List, ListItem, ListItemIcon, ListItemText, AppBar, Typography, CssBaseline, Avatar } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Drawer,
+  Toolbar,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  AppBar,
+  Typography,
+  CssBaseline,
+  Avatar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import PrintIcon from '@mui/icons-material/Print';
-
+import HistoryIcon from '@mui/icons-material/History';
 // Importa componentes separados
 import InventoryContent from './components/InventoryContent';
 import LoansContent from './components/LoansContent';
 import ReportsContent from './components/ReportsContent';
 import AlertsContent from './components/AlertsContent';
 import GenerateReportsContent from './components/GenerateReportsContent';
+import HistoryContent from './components/HistoryContent';
+
+// Importar contexto y utilidades
+import { useAuth } from './context/AuthContext';
+import { useNotification } from './context/NotificationContext';
+import { saveTools, loadTools, saveLoans, loadLoans } from './utils/localStorage';
 
 const drawerWidth = 240;
 
 const menuItems = [
-  { text: 'Cierre de sesión', icon: <LogoutIcon />, key: 'logout' },
   { text: 'Inventario existente', icon: <InventoryIcon />, key: 'inventory' },
   { text: 'Préstamos activos', icon: <AssignmentIcon />, key: 'loans' },
+  { text: 'Historial de préstamos', icon: <HistoryIcon />, key: 'history' },
   { text: 'Reportes', icon: <AssessmentIcon />, key: 'reports' },
-  { text: 'notificaciones', icon: <NotificationsIcon />, key: 'alerts' },
+  { text: 'Notificaciones', icon: <NotificationsIcon />, key: 'alerts' },
   { text: 'Generar reportes', icon: <PrintIcon />, key: 'generate-reports' },
+  { text: 'Cerrar sesión', icon: <LogoutIcon />, key: 'logout' },
 ];
 
 export default function DashboardLayout() {
+  const { user, logout } = useAuth();
+  const notification = useNotification();
   const [selectedSection, setSelectedSection] = useState('inventory');
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   // Estado global para herramientas y préstamos (compartido)
-  const [tools, setTools] = useState([
-    { id: 1, name: 'Martillo', category: 'Herramientas Manuales', brand: 'Stanley', availableStock: 8, totalStock: 10, status: 'Disponible' },
-    { id: 2, name: 'Destornillador', category: 'Herramientas Manuales', brand: 'Bosch', availableStock: 2, totalStock: 5, status: 'Bajo Stock' },
-    { id: 3, name: 'Taladro', category: 'Herramientas Eléctricas', brand: 'Makita', availableStock: 5, totalStock: 5, status: 'Disponible' },
-  ]);
+  const [tools, setTools] = useState([]);
+  const [loans, setLoans] = useState([]);
 
-  const [loans, setLoans] = useState([
-    { id: 1, user: 'Juan Pérez', toolId: 1, toolName: 'Martillo', loanDate: '2023-10-01', returnDate: '2023-10-15', status: 'Activo' },
-    { id: 2, user: 'María García', toolId: 3, toolName: 'Taladro', loanDate: '2023-10-05', returnDate: '2023-10-20', status: 'Activo' },
-  ]);
+  // Cargar datos desde localStorage al iniciar
+  useEffect(() => {
+    const savedTools = loadTools();
+    const savedLoans = loadLoans();
+    setTools(savedTools);
+    setLoans(savedLoans);
+    notification.success('Datos cargados correctamente');
+  }, []);
+
+  // Guardar herramientas cuando cambien
+  useEffect(() => {
+    if (tools.length > 0) {
+      saveTools(tools);
+    }
+  }, [tools]);
+
+  // Guardar préstamos cuando cambien
+  useEffect(() => {
+    if (loans.length > 0) {
+      saveLoans(loans);
+    }
+  }, [loans]);
 
   const handleMenuClick = (key) => {
-    setSelectedSection(key);
+    if (key === 'logout') {
+      setLogoutDialogOpen(true);
+    } else {
+      setSelectedSection(key);
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    notification.success('Sesión cerrada correctamente');
+    setLogoutDialogOpen(false);
+  };
+
+  const handleCancelLogout = () => {
+    setLogoutDialogOpen(false);
   };
 
   const drawer = (
     <div style={{ backgroundColor: '#212F3D', height: '100%', color: '#BBE1FA' }}>
       <Toolbar sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
-        <Avatar sx={{ width: 64, height: 64, mb: 1 }}>OA</Avatar>
-        <Typography>obed_alvarado</Typography>
+        <Avatar sx={{ width: 64, height: 64, mb: 1, bgcolor: '#6C5CE7' }}>
+          {user?.name?.charAt(0) || 'U'}
+        </Avatar>
+        <Typography>{user?.name || 'Usuario'}</Typography>
         <Typography color="success.main" fontSize={12}>Online</Typography>
       </Toolbar>
       <List>
         {menuItems.map(({ text, icon, key }) => (
-          <ListItem button key={key} onClick={() => handleMenuClick(key)} sx={{ bgcolor: selectedSection === key ? '#34495e' : 'transparent' }}>
+          <ListItem 
+            button 
+            key={key} 
+            onClick={() => handleMenuClick(key)} 
+            sx={{ 
+              bgcolor: selectedSection === key ? '#34495e' : 'transparent',
+              '&:hover': { bgcolor: '#34495e' }
+            }}
+          >
             <ListItemIcon sx={{ color: '#56CCF2' }}>{icon}</ListItemIcon>
             <ListItemText primary={text} />
           </ListItem>
@@ -64,23 +130,18 @@ export default function DashboardLayout() {
 
   const renderContent = () => {
     switch (selectedSection) {
-      case 'logout':
-        return (
-          <Box sx={{ textAlign: 'center', mt: 4 }}>
-            <Typography variant="h5" gutterBottom>¿Estás seguro de cerrar sesión?</Typography>
-            <Typography variant="body1" color="error">Funcionalidad pendiente (integrar autenticación).</Typography>
-          </Box>
-        );
       case 'inventory':
         return <InventoryContent tools={tools} setTools={setTools} />;
       case 'loans':
         return <LoansContent tools={tools} setTools={setTools} loans={loans} setLoans={setLoans} />;
+      case 'history':
+        return <HistoryContent loans={loans} />;
       case 'reports':
-          return <ReportsContent tools={tools} loans={loans} />;
+        return <ReportsContent tools={tools} loans={loans} />;
       case 'alerts':
-          return <AlertsContent tools={tools} loans={loans} />;
+        return <AlertsContent tools={tools} loans={loans} />;
       case 'generate-reports':
-        return <GenerateReportsContent />;
+        return <GenerateReportsContent tools={tools} loans={loans} />;
       default:
         return <InventoryContent tools={tools} setTools={setTools} />;
     }
@@ -93,8 +154,10 @@ export default function DashboardLayout() {
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant="h6">Sistema de Herramientas y Préstamos</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Avatar>OA</Avatar>
-            <Typography>obed_alvarado</Typography>
+            <Avatar sx={{ bgcolor: '#5B4BC7' }}>
+              {user?.name?.charAt(0) || 'U'}
+            </Avatar>
+            <Typography>{user?.name || 'Usuario'}</Typography>
           </Box>
         </Toolbar>
       </AppBar>
@@ -114,6 +177,20 @@ export default function DashboardLayout() {
       <Box component="main" sx={{ flexGrow: 1, bgcolor: '#F4F6F8', p: 3, mt: 8 }}>
         {renderContent()}
       </Box>
+
+      {/* Diálogo de confirmación de logout */}
+      <Dialog open={logoutDialogOpen} onClose={handleCancelLogout}>
+        <DialogTitle>Cerrar Sesión</DialogTitle>
+        <DialogContent>
+          <Typography>¿Estás seguro de que deseas cerrar sesión?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelLogout}>Cancelar</Button>
+          <Button onClick={handleLogout} variant="contained" color="error">
+            Cerrar Sesión
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

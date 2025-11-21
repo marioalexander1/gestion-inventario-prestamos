@@ -1,8 +1,39 @@
 import React from 'react';
-import DashboardLayout from './DashboardLayout'; // Cambiado de './components/DashboardLayout'
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
+import DashboardLayout from './DashboardLayout';
+import Login from './components/Login';
+import { CircularProgress, Box } from '@mui/material';
+
+function AppContent() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
+      >
+        <CircularProgress size={60} />
+      </Box>
+    );
+  }
+
+  return user ? <DashboardLayout /> : <Login />;
+}
 
 function App() {
-  return <DashboardLayout />;
+  return (
+    <NotificationProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </NotificationProvider>
+  );
 }
 
 export default App;
