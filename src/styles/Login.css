@@ -3,8 +3,17 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  /* Gradiente más moderno y con animación */
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
   padding: 20px;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .login-paper {
@@ -12,8 +21,12 @@
   max-width: 450px;
   padding: 40px;
   border-radius: 16px !important;
-  background: white;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
+  /* Efecto Glassmorphism */
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
 }
 
 .login-header {
@@ -26,9 +39,9 @@
 }
 
 .login-demo-info {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #f5f5f5;
+  margin-top: 15px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -67,6 +80,19 @@
   animation: avatarPopIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+/* Animación escalonada para los campos del formulario */
+.form-field-1 {
+  animation: fadeIn 0.5s ease-out 0.2s;
+  animation-fill-mode: backwards;
+}
+.form-field-2 {
+  animation: fadeIn 0.5s ease-out 0.4s;
+  animation-fill-mode: backwards;
+}
+.form-field-3 {
+  animation: fadeIn 0.5s ease-out 0.6s;
+  animation-fill-mode: backwards;
+}
 
 /* Responsive */
 @media (max-width: 600px) {

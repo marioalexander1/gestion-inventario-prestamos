@@ -82,7 +82,7 @@ function Login() {
             </Alert>
           )}
 
-          <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
+          <FormControl fullWidth variant="outlined" sx={{ mb: 2 }} className="form-field-1">
             <InputLabel>Usuario</InputLabel>
             <Select
               value={username}
@@ -96,7 +96,7 @@ function Login() {
             </Select>
           </FormControl>
 
-          <TextField
+          <TextField className="form-field-2"
             fullWidth
             label="Contraseña"
             type={showPassword ? 'text' : 'password'}
@@ -115,7 +115,7 @@ function Login() {
             }}
           />
 
-          <Button
+          <Button className="form-field-3"
             fullWidth
             variant="contained"
             type="submit"

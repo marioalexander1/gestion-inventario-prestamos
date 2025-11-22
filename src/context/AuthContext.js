@@ -46,6 +46,7 @@ const initialUsers = [
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loggingInUser, setLoggingInUser] = useState(null); // Reemplaza isLoggingIn
   // Carga usuarios desde localStorage o usa la lista inicial como fallback
   const [users, setUsers] = useState(() => loadUsers() || initialUsers);
 
@@ -79,8 +80,14 @@ export const AuthProvider = ({ children }) => {
         permissions: foundUser.permissions || {}, // Incluir permisos
         loginTime: new Date().toISOString(),
       };
-      setUser(userData);
-      saveUser(userData);
+      
+      setLoggingInUser(userData); // Guardar datos del usuario y activar la pantalla de carga
+      setTimeout(() => {
+        setUser(userData);
+        saveUser(userData);
+        setLoggingInUser(null); // Desactivar la pantalla de carga
+      }, 2000); // 2 segundos de carga
+
       return { success: true, user: userData };
     }
 
@@ -127,6 +134,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     loading,
+    loggingInUser, // Exponer el nuevo estado
     users, // Exponemos la lista de usuarios
     setUsers, // Exponemos la función para actualizar usuarios
     updateUserProfile, // Nueva función para actualizar el perfil
