@@ -27,6 +27,10 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import PrintIcon from '@mui/icons-material/Print';
 import HistoryIcon from '@mui/icons-material/History';
 import GroupIcon from '@mui/icons-material/Group';
+import PushPinIcon from '@mui/icons-material/PushPin';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 // Importa componentes separados
 import InventoryContent from './components/InventoryContent';
 import LoansContent from './components/LoansContent';
@@ -38,6 +42,7 @@ import UsersContent from './UsersContent';
 // Importar contexto y utilidades
 import { useAuth } from './context/AuthContext';
 import { useNotification } from './context/NotificationContext';
+import { useThemeContext } from './context/ThemeContext';
 import { saveTools, loadTools, saveLoans, loadLoans } from './utils/localStorage';
 import { stringToColor, getInitials } from './utils/avatarUtils';
 
@@ -101,12 +106,13 @@ const AppBar = styled(MuiAppBar, {
 
 export default function DashboardLayout() {
   const { user, logout, updateUserProfile } = useAuth();
+  const { mode, toggleTheme } = useThemeContext();
   const notification = useNotification();
   const [selectedSection, setSelectedSection] = useState('inventory');
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
-
+  const [isDrawerPinned, setDrawerPinned] = useState(false);
   // Estado global para herramientas y préstamos (compartido)
   const [tools, setTools] = useState([]);
   const [loans, setLoans] = useState([]);
@@ -161,11 +167,19 @@ export default function DashboardLayout() {
   };
 
   const handleDrawerOpen = () => {
-    setDrawerOpen(true);
+    if (!isDrawerPinned) {
+      setDrawerOpen(true);
+    }
   };
 
   const handleDrawerClose = () => {
-    setDrawerOpen(false);
+    if (!isDrawerPinned) {
+      setDrawerOpen(false);
+    }
+  };
+
+  const toggleDrawerPin = () => {
+    setDrawerPinned(!isDrawerPinned);
   };
 
   const handlePhotoChange = (event) => {
@@ -185,6 +199,15 @@ export default function DashboardLayout() {
   const drawer = (
     <div style={{ height: '100%' }}>
       <Toolbar />
+      <Box sx={{ textAlign: 'right', px: 1, position: 'absolute', top: 15, right: 5, zIndex: 1300 }}>
+        <IconButton onClick={toggleDrawerPin} title={isDrawerPinned ? "Desanclar barra lateral" : "Anclar barra lateral"}>
+          {isDrawerPinned ? (
+            <PushPinIcon sx={{ color: '#BBE1FA', transform: 'rotate(45deg)' }} />
+          ) : (
+            <PushPinOutlinedIcon sx={{ color: '#BBE1FA' }} />
+          )}
+        </IconButton>
+      </Box>
       <Toolbar sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
         <IconButton onClick={() => setPhotoModalOpen(true)} sx={{ p: 0, mb: 1 }}>
           <Avatar 
@@ -200,7 +223,7 @@ export default function DashboardLayout() {
             {getInitials(user?.name)}
           </Avatar>
         </IconButton>
-        <Typography noWrap sx={{ opacity: isDrawerOpen ? 1 : 0, transition: 'opacity 0.3s' }}>{user?.name || 'Usuario'}</Typography>
+        <Typography noWrap sx={{ opacity: (isDrawerOpen || isDrawerPinned) ? 1 : 0, transition: 'opacity 0.3s' }}>{user?.name || 'Usuario'}</Typography>
       </Toolbar>
       <List>
         {menuItems.map(({ text, icon, key }) => (
@@ -210,7 +233,7 @@ export default function DashboardLayout() {
               onClick={() => handleMenuClick(key)}
               sx={{
                 minHeight: 48,
-                justifyContent: isDrawerOpen ? 'initial' : 'center',
+                justifyContent: (isDrawerOpen || isDrawerPinned) ? 'initial' : 'center',
                 px: 2.5,
                 '&:hover': { bgcolor: '#34495e' },
                 '&.Mui-selected': {
@@ -226,8 +249,8 @@ export default function DashboardLayout() {
                 }),
               }}
             >
-            <ListItemIcon sx={{ minWidth: 0, mr: isDrawerOpen ? 3 : 'auto', justifyContent: 'center', color: '#56CCF2' }}>{icon}</ListItemIcon>
-            <ListItemText primary={text} sx={{ opacity: isDrawerOpen ? 1 : 0 }} />  
+            <ListItemIcon sx={{ minWidth: 0, mr: (isDrawerOpen || isDrawerPinned) ? 3 : 'auto', justifyContent: 'center', color: '#56CCF2' }}>{icon}</ListItemIcon>
+            <ListItemText primary={text} sx={{ opacity: (isDrawerOpen || isDrawerPinned) ? 1 : 0 }} />  
             </ListItemButton>
           </ListItem> 
         ))}
@@ -258,10 +281,13 @@ export default function DashboardLayout() {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar position="fixed" open={isDrawerOpen} sx={{ bgcolor: '#6C5CE7' }}>
+      <AppBar position="fixed" open={isDrawerOpen || isDrawerPinned} sx={{ bgcolor: '#6C5CE7' }}>
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant="h6">Sistema de Herramientas y Préstamos</Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <IconButton sx={{ color: 'white' }} onClick={toggleTheme} title={mode === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'}>
+              {mode === 'light' ? <Brightness4Icon /> : <Brightness7Icon />}
+            </IconButton>
             <Avatar src={user?.photo} sx={{ bgcolor: stringToColor(user?.name || ''), width: 32, height: 32, fontSize: '0.8rem' }}>
               {getInitials(user?.name)}
             </Avatar>
@@ -272,7 +298,7 @@ export default function DashboardLayout() {
 
       <CustomDrawer
         variant="permanent"
-        open={isDrawerOpen}
+        open={isDrawerOpen || isDrawerPinned}
         onMouseEnter={handleDrawerOpen}
         onMouseLeave={handleDrawerClose}
         PaperProps={{ sx: { bgcolor: '#212F3D', color: '#BBE1FA' } }}
@@ -283,7 +309,7 @@ export default function DashboardLayout() {
       <Box 
         component="main" 
         sx={(theme) => ({ 
-          flexGrow: 1, bgcolor: '#F4F6F8', p: 3, mt: 8 
+          flexGrow: 1, bgcolor: 'background.default', p: 3, mt: 8 
         })}
       >
         {renderContent()}

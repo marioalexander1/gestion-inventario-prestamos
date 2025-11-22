@@ -3,6 +3,7 @@ import {
   Box,
   Typography,
   Grid,
+  Paper,
   Button,
   Modal,
   TextField,
@@ -234,7 +235,17 @@ function LoansContent({ tools, setTools, loans, setLoans }) {
 
       {/* Modal Registrar Préstamo */}
       <Modal open={openModal} onClose={handleCloseModal}>
-        <Box className="loans-modal">
+        <Paper sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          bgcolor: 'background.paper',
+          border: '2px solid #000',
+          boxShadow: 24,
+          p: 4,
+        }}>
           <Typography variant="h6" gutterBottom>
             Registrar Nuevo Préstamo
           </Typography>
@@ -303,7 +314,7 @@ function LoansContent({ tools, setTools, loans, setLoans }) {
               {loading ? <CircularProgress size={24} /> : 'Registrar'}
             </Button>
           </Box>
-        </Box>
+        </Paper>
       </Modal>
 
       {/* Diálogo de confirmación de devolución */}

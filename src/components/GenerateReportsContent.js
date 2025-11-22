@@ -217,7 +217,7 @@ function GenerateReportsContent({ tools, loans }) {
               sx={{
                 mt: 3,
                 p: 2,
-                bgcolor: '#f5f5f5',
+                bgcolor: 'action.hover',
                 borderRadius: 2,
                 display: 'flex',
                 alignItems: 'center',

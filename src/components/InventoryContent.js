@@ -174,7 +174,6 @@ function InventoryContent({ tools, setTools }) {
                       <EditIcon />
                     </IconButton>
                   )}
-                  {/* 2. Condicionamos la renderización del botón de eliminar */}
                   {hasPermission('puede_eliminar_inventario') && (
                     <IconButton onClick={() => handleOpenDeleteDialog(tool)} color="error">
                       <DeleteIcon />
