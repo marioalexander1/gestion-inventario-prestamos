@@ -20,26 +20,29 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useNotification } from '../context/NotificationContext';
+import { useAuth } from '../context/AuthContext';
 import '../styles/LoansContent.css';
 
 function LoansContent({ tools, setTools, loans, setLoans }) {
   const notification = useNotification();
+  const { user: loggedInUser } = useAuth(); // Renombrado para claridad
   const [openModal, setOpenModal] = useState(false);
   const [openReturnDialog, setOpenReturnDialog] = useState(false);
   const [selectedLoan, setSelectedLoan] = useState(null);
-  const [newLoan, setNewLoan] = useState({ user: '', toolId: '', loanDate: '', returnDate: '' });
+  const [newLoan, setNewLoan] = useState({ user: '', toolId: '', loanDate: '', loanTime: '', returnDate: '' });
   const [loading, setLoading] = useState(false);
 
   const handleOpenModal = () => {
     // Establecer fecha actual como fecha de préstamo por defecto
     const today = new Date().toISOString().split('T')[0];
-    setNewLoan({ ...newLoan, loanDate: today });
+    const now = new Date().toTimeString().slice(0, 5);
+    setNewLoan({ ...newLoan, loanDate: today, loanTime: now });
     setOpenModal(true);
   };
 
   const handleCloseModal = () => {
     setOpenModal(false);
-    setNewLoan({ user: '', toolId: '', loanDate: '', returnDate: '' });
+    setNewLoan({ user: '', toolId: '', loanDate: '', loanTime: '', returnDate: '' });
   };
 
   const handleOpenReturnDialog = (loan) => {
@@ -55,11 +58,7 @@ function LoansContent({ tools, setTools, loans, setLoans }) {
   const handleAddLoan = () => {
     // Validaciones
     if (!newLoan.user.trim()) {
-      notification.error('El nombre del usuario es obligatorio');
-      return;
-    }
-    if (!newLoan.toolId) {
-      notification.error('Debes seleccionar una herramienta');
+      notification.error('El nombre del prestatario es obligatorio');
       return;
     }
     if (!newLoan.loanDate) {
@@ -97,7 +96,10 @@ function LoansContent({ tools, setTools, loans, setLoans }) {
         id: newId,
         user: newLoan.user.trim(),
         toolId: selectedTool.id,
+        loanedBy: loggedInUser.name, // Usuario del sistema que registra
+        timestamp: new Date().toISOString(), // Fecha y hora exacta del registro
         toolName: selectedTool.name,
+        loanTime: newLoan.loanTime, // Añadir hora del préstamo
         loanDate: newLoan.loanDate,
         returnDate: newLoan.returnDate,
         status: 'Activo',
@@ -176,7 +178,7 @@ function LoansContent({ tools, setTools, loans, setLoans }) {
       ) : (
         <Grid container spacing={2}>
           {activeLoans.map((loan) => (
-            <Grid item xs={12} md={6} lg={4} key={loan.id}>
+            <Grid xs={12} md={6} lg={4} key={loan.id}>
               <Card className="loan-card" sx={{ position: 'relative' }}>
                 {isOverdue(loan.returnDate) && (
                   <Chip
@@ -194,7 +196,7 @@ function LoansContent({ tools, setTools, loans, setLoans }) {
                     Usuario: <strong>{loan.user}</strong>
                   </Typography>
                   <Typography variant="body2" color="textSecondary">
-                    Fecha Préstamo: {loan.loanDate}
+                    Fecha Préstamo: {loan.loanDate} {loan.loanTime && `a las ${loan.loanTime}`}
                   </Typography>
                   <Typography
                     variant="body2"
@@ -238,13 +240,13 @@ function LoansContent({ tools, setTools, loans, setLoans }) {
           </Typography>
           <TextField
             fullWidth
-            label="Usuario"
+            label="Nombre del Prestatario (Alumno, etc.)"
             value={newLoan.user}
             onChange={(e) => setNewLoan({ ...newLoan, user: e.target.value })}
             sx={{ mb: 2 }}
             required
           />
-          <FormControl fullWidth sx={{ mb: 2 }} required>
+          <FormControl fullWidth variant="outlined" sx={{ mb: 2 }} required>
             <InputLabel>Herramienta</InputLabel>
             <Select
               value={newLoan.toolId}
@@ -258,7 +260,7 @@ function LoansContent({ tools, setTools, loans, setLoans }) {
                   .filter((tool) => tool.availableStock > 0)
                   .map((tool) => (
                     <MenuItem key={tool.id} value={tool.id}>
-                      {tool.name} (Disponible: {tool.availableStock})
+                      {`${tool.name} [${tool.category}] (Disp: ${tool.availableStock})`}
                     </MenuItem>
                   ))
               )}
@@ -273,6 +275,15 @@ function LoansContent({ tools, setTools, loans, setLoans }) {
             sx={{ mb: 2 }}
             InputLabelProps={{ shrink: true }}
             required
+          />
+          <TextField
+            fullWidth
+            label="Hora de Préstamo (Opcional)"
+            type="time"
+            value={newLoan.loanTime}
+            onChange={(e) => setNewLoan({ ...newLoan, loanTime: e.target.value })}
+            sx={{ mb: 2 }}
+            InputLabelProps={{ shrink: true }}
           />
           <TextField
             fullWidth

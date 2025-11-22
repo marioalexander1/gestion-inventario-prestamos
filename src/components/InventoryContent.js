@@ -17,10 +17,12 @@ import {
   DialogActions,
   TextField,
   Chip,
+  InputAdornment,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import SearchIcon from '@mui/icons-material/Search';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 
@@ -28,6 +30,7 @@ function InventoryContent({ tools, setTools }) {
   const { hasPermission } = useAuth(); // 1. Obtenemos la función de permisos
   const notification = useNotification();
 
+  const [searchTerm, setSearchTerm] = useState('');
   const [openModal, setOpenModal] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [toolToEdit, setToolToEdit] = useState(null);
@@ -105,6 +108,13 @@ function InventoryContent({ tools, setTools }) {
     return <Chip label="Disponible" color="success" size="small" />;
   };
 
+  // Filtrar herramientas
+  const filteredTools = tools.filter(tool =>
+    tool.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    tool.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    tool.brand.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <Paper sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -116,6 +126,24 @@ function InventoryContent({ tools, setTools }) {
             Añadir Herramienta
           </Button>
         )}
+      </Box>
+
+      <Box sx={{ mb: 2 }}>
+        <TextField
+          fullWidth
+          variant="outlined"
+          label="Buscar Herramienta"
+          placeholder="Escribe un nombre, categoría o marca..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
       </Box>
 
       <TableContainer component={Paper}>
@@ -132,7 +160,7 @@ function InventoryContent({ tools, setTools }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {tools.map((tool) => (
+            {filteredTools.map((tool) => (
               <TableRow key={tool.id}>
                 <TableCell>{tool.name}</TableCell>
                 <TableCell>{tool.category}</TableCell>

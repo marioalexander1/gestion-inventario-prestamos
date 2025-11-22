@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {
+import { 
   Box,
   Typography,
   Paper,
@@ -9,16 +9,29 @@ import {
   FormControl,
   InputLabel,
   Chip,
-  InputAdornment,
+  InputAdornment, 
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import SearchIcon from '@mui/icons-material/Search';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 import '../styles/HistoryContent.css';
 
-function HistoryContent({ loans }) {
+function HistoryContent({ loans, setLoans }) {
+  const { hasRole } = useAuth();
+  const notification = useNotification();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('Todos');
   const [dateFilter, setDateFilter] = useState('');
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [loanToDelete, setLoanToDelete] = useState(null);
 
   // Filtrar préstamos
   const filteredLoans = loans.filter((loan) => {
@@ -47,11 +60,33 @@ function HistoryContent({ loans }) {
     return l.returnDate < today;
   }).length;
 
+  const handleOpenDeleteDialog = (loan) => {
+    setLoanToDelete(loan);
+    setOpenDeleteDialog(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setLoanToDelete(null);
+    setOpenDeleteDialog(false);
+  };
+
+  const handleDeleteLoan = () => {
+    if (!loanToDelete) return;
+    setLoans(loans.filter(loan => loan.id !== loanToDelete.id));
+    notification.success('Registro de historial eliminado.');
+    handleCloseDeleteDialog();
+  };
+
   const columns = [
-    { field: 'id', headerName: 'ID', width: 70 },
     { field: 'user', headerName: 'Usuario', width: 180 },
     { field: 'toolName', headerName: 'Herramienta', width: 180 },
     { field: 'loanDate', headerName: 'Fecha Préstamo', width: 140 },
+    {
+      field: 'timestamp',
+      headerName: 'Hora',
+      width: 100,
+      renderCell: (params) => params.value ? new Date(params.value).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : ''
+    },
     { field: 'returnDate', headerName: 'Fecha Devolución', width: 150 },
     {
       field: 'status',
@@ -85,6 +120,21 @@ function HistoryContent({ loans }) {
       },
     },
   ];
+
+  if (hasRole('admin')) {
+    columns.push({
+      field: 'actions',
+      headerName: 'Acciones',
+      width: 100,
+      sortable: false,
+      renderCell: (params) => (
+        <IconButton color="error" onClick={() => handleOpenDeleteDialog(params.row)}>
+          <DeleteIcon />
+        </IconButton>
+      ),
+    });
+  }
+
 
   return (
     <div className="history-container">
@@ -196,6 +246,22 @@ function HistoryContent({ loans }) {
           </Typography>
         </Box>
       )}
+
+      {/* Diálogo de confirmación de eliminación */}
+      <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
+        <DialogTitle>Confirmar Eliminación</DialogTitle>
+        <DialogContent>
+          <Typography>
+            ¿Estás seguro de que deseas eliminar este registro del historial? Esta acción no se puede deshacer.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteDialog}>Cancelar</Button>
+          <Button onClick={handleDeleteLoan} variant="contained" color="error">
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

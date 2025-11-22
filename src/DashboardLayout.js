@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { styled } from '@mui/material/styles';
 import {
   Box,
   Drawer,
@@ -8,7 +9,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  AppBar,
+  AppBar as MuiAppBar, // Renombramos para evitar conflictos
   Typography,
   CssBaseline,
   Avatar,
@@ -23,7 +24,6 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import PrintIcon from '@mui/icons-material/Print';
 import HistoryIcon from '@mui/icons-material/History';
 import GroupIcon from '@mui/icons-material/Group';
@@ -31,7 +31,6 @@ import GroupIcon from '@mui/icons-material/Group';
 import InventoryContent from './components/InventoryContent';
 import LoansContent from './components/LoansContent';
 import ReportsContent from './components/ReportsContent';
-import AlertsContent from './components/AlertsContent';
 import GenerateReportsContent from './components/GenerateReportsContent';
 import HistoryContent from './components/HistoryContent';
 import UsersContent from './UsersContent';
@@ -44,12 +43,69 @@ import { stringToColor, getInitials } from './utils/avatarUtils';
 
 const drawerWidth = 240;
 
+const openedMixin = (theme) => ({
+  width: drawerWidth,
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
+  overflowX: 'hidden',
+});
+
+const closedMixin = (theme) => ({
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  overflowX: 'hidden',
+  width: `calc(${theme.spacing(7)} + 1px)`,
+  [theme.breakpoints.up('sm')]: {
+    width: `calc(${theme.spacing(8)} + 1px)`,
+  },
+});
+
+const CustomDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+  ({ theme, open }) => ({
+    width: drawerWidth,
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
+    boxSizing: 'border-box',
+    ...(open && {
+      ...openedMixin(theme),
+      '& .MuiDrawer-paper': openedMixin(theme),
+    }),
+    ...(!open && {
+      ...closedMixin(theme),
+      '& .MuiDrawer-paper': closedMixin(theme),
+    }),
+  }),
+);
+
+const AppBar = styled(MuiAppBar, {
+  shouldForwardProp: (prop) => prop !== 'open',
+})(({ theme, open }) => ({
+  zIndex: theme.zIndex.drawer + 1,
+  transition: theme.transitions.create(['width', 'margin'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  ...(open && {
+    marginLeft: drawerWidth,
+    width: `calc(100% - ${drawerWidth}px)`,
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
+
 export default function DashboardLayout() {
   const { user, logout, updateUserProfile } = useAuth();
   const notification = useNotification();
   const [selectedSection, setSelectedSection] = useState('inventory');
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
+  const [isDrawerOpen, setDrawerOpen] = useState(false);
 
   // Estado global para herramientas y préstamos (compartido)
   const [tools, setTools] = useState([]);
@@ -61,7 +117,6 @@ export default function DashboardLayout() {
     { text: 'Historial', icon: <HistoryIcon />, key: 'history' },
     { text: 'Usuarios', icon: <GroupIcon />, key: 'users', adminOnly: true },
     { text: 'Reportes', icon: <AssessmentIcon />, key: 'reports' },
-    { text: 'Notificaciones', icon: <NotificationsIcon />, key: 'alerts' },
     { text: 'Generar Reportes', icon: <PrintIcon />, key: 'generate-reports' },
     { text: 'Cerrar Sesión', icon: <LogoutIcon />, key: 'logout' },
   ];
@@ -105,6 +160,14 @@ export default function DashboardLayout() {
     setLogoutDialogOpen(false);
   };
 
+  const handleDrawerOpen = () => {
+    setDrawerOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setDrawerOpen(false);
+  };
+
   const handlePhotoChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -120,7 +183,8 @@ export default function DashboardLayout() {
   };
 
   const drawer = (
-    <div style={{ backgroundColor: '#212F3D', height: '100%', color: '#BBE1FA' }}>
+    <div style={{ height: '100%' }}>
+      <Toolbar />
       <Toolbar sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
         <IconButton onClick={() => setPhotoModalOpen(true)} sx={{ p: 0, mb: 1 }}>
           <Avatar 
@@ -136,7 +200,7 @@ export default function DashboardLayout() {
             {getInitials(user?.name)}
           </Avatar>
         </IconButton>
-        <Typography>{user?.name || 'Usuario'}</Typography>
+        <Typography noWrap sx={{ opacity: isDrawerOpen ? 1 : 0, transition: 'opacity 0.3s' }}>{user?.name || 'Usuario'}</Typography>
       </Toolbar>
       <List>
         {menuItems.map(({ text, icon, key }) => (
@@ -145,15 +209,25 @@ export default function DashboardLayout() {
               selected={selectedSection === key}
               onClick={() => handleMenuClick(key)}
               sx={{
+                minHeight: 48,
+                justifyContent: isDrawerOpen ? 'initial' : 'center',
+                px: 2.5,
                 '&:hover': { bgcolor: '#34495e' },
                 '&.Mui-selected': {
                   bgcolor: '#34495e',
                   '&:hover': { bgcolor: '#34495e' },
                 },
+                ...(key === 'logout' && {
+                  '&:hover': { bgcolor: 'rgba(211, 47, 47, 0.2)' },
+                  color: '#d32f2f',
+                  '& .MuiListItemIcon-root': {
+                    color: '#d32f2f',
+                  },
+                }),
               }}
             >
-            <ListItemIcon sx={{ color: '#56CCF2' }}>{icon}</ListItemIcon>
-            <ListItemText primary={text} />  
+            <ListItemIcon sx={{ minWidth: 0, mr: isDrawerOpen ? 3 : 'auto', justifyContent: 'center', color: '#56CCF2' }}>{icon}</ListItemIcon>
+            <ListItemText primary={text} sx={{ opacity: isDrawerOpen ? 1 : 0 }} />  
             </ListItemButton>
           </ListItem> 
         ))}
@@ -171,11 +245,9 @@ export default function DashboardLayout() {
       case 'users':
         return <UsersContent />;
       case 'history':
-        return <HistoryContent loans={loans} />;
+        return <HistoryContent loans={loans} setLoans={setLoans} />;
       case 'reports':
-        return <ReportsContent tools={tools} loans={loans} />;
-      case 'alerts':
-        return <AlertsContent tools={tools} loans={loans} />;
+        return <ReportsContent />;
       case 'generate-reports':
         return <GenerateReportsContent tools={tools} loans={loans} />;
       default:
@@ -186,7 +258,7 @@ export default function DashboardLayout() {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar position="fixed" sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px`, bgcolor: '#6C5CE7' }}>
+      <AppBar position="fixed" open={isDrawerOpen} sx={{ bgcolor: '#6C5CE7' }}>
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant="h6">Sistema de Herramientas y Préstamos</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -198,19 +270,22 @@ export default function DashboardLayout() {
         </Toolbar>
       </AppBar>
 
-      <Drawer
+      <CustomDrawer
         variant="permanent"
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box', bgcolor: '#212F3D', color: '#BBE1FA' }
-        }}
-        open
+        open={isDrawerOpen}
+        onMouseEnter={handleDrawerOpen}
+        onMouseLeave={handleDrawerClose}
+        PaperProps={{ sx: { bgcolor: '#212F3D', color: '#BBE1FA' } }}
       >
         {drawer}
-      </Drawer>
+      </CustomDrawer>
 
-      <Box component="main" sx={{ flexGrow: 1, bgcolor: '#F4F6F8', p: 3, mt: 8 }}>
+      <Box 
+        component="main" 
+        sx={(theme) => ({ 
+          flexGrow: 1, bgcolor: '#F4F6F8', p: 3, mt: 8 
+        })}
+      >
         {renderContent()}
       </Box>
 

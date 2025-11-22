@@ -82,7 +82,7 @@ function GenerateReportsContent({ tools, loans }) {
 
       <Grid container spacing={3}>
         {/* Formulario de configuración */}
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
           <Paper className="generate-reports-paper">
             <Typography variant="h6" className="generate-reports-title" gutterBottom>
               Configuración del Reporte
@@ -154,7 +154,7 @@ function GenerateReportsContent({ tools, loans }) {
         </Grid>
 
         {/* Información y vista previa */}
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
           <Paper className="generate-reports-paper">
             <Typography variant="h6" className="generate-reports-title" gutterBottom>
               Información del Reporte
@@ -238,14 +238,14 @@ function GenerateReportsContent({ tools, loans }) {
         </Grid>
 
         {/* Accesos rápidos */}
-        <Grid item xs={12}>
+        <Grid xs={12}>
           <Paper className="generate-reports-paper">
             <Typography variant="h6" gutterBottom>
               Accesos Rápidos
             </Typography>
             <Divider sx={{ mb: 2 }} />
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid xs={12} sm={6} md={3}>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -258,7 +258,7 @@ function GenerateReportsContent({ tools, loans }) {
                   Inventario PDF
                 </Button>
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid xs={12} sm={6} md={3}>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -271,7 +271,7 @@ function GenerateReportsContent({ tools, loans }) {
                   Inventario Excel
                 </Button>
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid xs={12} sm={6} md={3}>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -284,7 +284,7 @@ function GenerateReportsContent({ tools, loans }) {
                   Préstamos PDF
                 </Button>
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid xs={12} sm={6} md={3}>
                 <Button
                   fullWidth
                   variant="outlined"
