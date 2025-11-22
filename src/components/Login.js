@@ -1,23 +1,30 @@
 import React, { useState } from 'react';
-import { Box, Paper, TextField, Button, Typography, Alert, InputAdornment, IconButton, Avatar } from '@mui/material';
+import { Box, Paper, TextField, Button, Typography, Alert, InputAdornment, IconButton, Avatar, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { Visibility, VisibilityOff, Login as LoginIcon } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
+import { stringToColor, getInitials } from '../utils/avatarUtils';
 import '../styles/Login.css';
 
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [userPhoto, setUserPhoto] = useState(null);
+  const [userNameForAvatar, setUserNameForAvatar] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const { login, users } = useAuth();
 
-  const handleUsernameBlur = () => {
-    if (username) {
-      const foundUser = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+  const handleUserChange = (event) => {
+    const selectedUsername = event.target.value;
+    setUsername(selectedUsername);
+
+    if (selectedUsername) {
+      const foundUser = users.find(u => u.username === selectedUsername);
+      setUserNameForAvatar(foundUser?.name || '');
       setUserPhoto(foundUser?.photo || null);
     } else {
       setUserPhoto(null);
+      setUserNameForAvatar('');
     }
   };
 
@@ -45,10 +52,19 @@ function Login() {
       <Paper className="login-paper" elevation={6}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
           {userPhoto ? (
-            <Avatar src={userPhoto} sx={{ width: 80, height: 80, mb: 2 }} />
+            <Avatar
+              key={userNameForAvatar}
+              src={userPhoto}
+              className="login-avatar"
+              sx={{ width: 80, height: 80, mb: 2 }}
+            />
           ) : (
-            <Avatar sx={{ width: 80, height: 80, mb: 2, bgcolor: '#6C5CE7' }}>
-              <LoginIcon sx={{ fontSize: 48 }} />
+            <Avatar
+              key={userNameForAvatar || 'default'}
+              className="login-avatar"
+              sx={{ width: 80, height: 80, mb: 2, bgcolor: stringToColor(userNameForAvatar), fontSize: '2rem' }}
+            >
+              {userNameForAvatar ? getInitials(userNameForAvatar) : <LoginIcon sx={{ fontSize: 48 }} />}
             </Avatar>
           )}
           <Typography variant="h4" gutterBottom>
@@ -66,16 +82,19 @@ function Login() {
             </Alert>
           )}
 
-          <TextField
-            fullWidth
-            label="Usuario"
-            variant="outlined"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            onBlur={handleUsernameBlur}
-            sx={{ mb: 2 }}
-            autoFocus
-          />
+          <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
+            <InputLabel>Usuario</InputLabel>
+            <Select
+              value={username}
+              onChange={handleUserChange}
+              label="Usuario"
+              autoFocus
+            >
+              {users.map((user) => (
+                <MenuItem key={user.id} value={user.username}>{user.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
           <TextField
             fullWidth

@@ -40,6 +40,7 @@ import UsersContent from './UsersContent';
 import { useAuth } from './context/AuthContext';
 import { useNotification } from './context/NotificationContext';
 import { saveTools, loadTools, saveLoans, loadLoans } from './utils/localStorage';
+import { stringToColor, getInitials } from './utils/avatarUtils';
 
 const drawerWidth = 240;
 
@@ -122,17 +123,17 @@ export default function DashboardLayout() {
     <div style={{ backgroundColor: '#212F3D', height: '100%', color: '#BBE1FA' }}>
       <Toolbar sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
         <IconButton onClick={() => setPhotoModalOpen(true)} sx={{ p: 0, mb: 1 }}>
-          <Avatar
+          <Avatar 
             src={user?.photo}
             sx={{
               width: 64,
               height: 64,
-              bgcolor: '#6C5CE7',
+              bgcolor: stringToColor(user?.name || ''),
               cursor: 'pointer',
               '&:hover': { opacity: 0.8 },
             }}
           >
-            {user?.name?.charAt(0) || 'U'}
+            {getInitials(user?.name)}
           </Avatar>
         </IconButton>
         <Typography>{user?.name || 'Usuario'}</Typography>
@@ -188,9 +189,9 @@ export default function DashboardLayout() {
       <AppBar position="fixed" sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px`, bgcolor: '#6C5CE7' }}>
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant="h6">Sistema de Herramientas y Préstamos</Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Avatar sx={{ bgcolor: '#5B4BC7' }}>
-              {user?.name?.charAt(0) || 'U'}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Avatar src={user?.photo} sx={{ bgcolor: stringToColor(user?.name || ''), width: 32, height: 32, fontSize: '0.8rem' }}>
+              {getInitials(user?.name)}
             </Avatar>
             <Typography>{user?.name || 'Usuario'}</Typography>
           </Box>

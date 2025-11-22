@@ -51,6 +51,23 @@
   animation: fadeIn 0.5s ease-out;
 }
 
+/* Animación para el Avatar */
+@keyframes avatarPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.login-avatar {
+  animation: avatarPopIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+
 /* Responsive */
 @media (max-width: 600px) {
   .login-paper {
