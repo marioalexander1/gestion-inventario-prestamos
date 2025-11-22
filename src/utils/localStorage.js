@@ -1,109 +1,47 @@
-// Utilidades para manejo de localStorage
+// Claves para localStorage
+const TOOLS_KEY = 'app_tools';
+const LOANS_KEY = 'app_loans';
+const USER_KEY = 'app_user';
+const USERS_LIST_KEY = 'app_users_list';
 
-const STORAGE_KEYS = {
-  TOOLS: 'inventory_tools',
-  LOANS: 'inventory_loans',
-  USER: 'inventory_user',
-};
-
-// Guardar datos en localStorage
-export const saveToLocalStorage = (key, data) => {
-  try {
-    const serializedData = JSON.stringify(data);
-    localStorage.setItem(key, serializedData);
-    return true;
-  } catch (error) {
-    console.error('Error saving to localStorage:', error);
-    return false;
-  }
-};
-
-// Cargar datos desde localStorage
-export const loadFromLocalStorage = (key, defaultValue = null) => {
-  try {
-    const serializedData = localStorage.getItem(key);
-    if (serializedData === null) {
-      return defaultValue;
-    }
-    return JSON.parse(serializedData);
-  } catch (error) {
-    console.error('Error loading from localStorage:', error);
-    return defaultValue;
-  }
-};
-
-// Eliminar datos de localStorage
-export const removeFromLocalStorage = (key) => {
-  try {
-    localStorage.removeItem(key);
-    return true;
-  } catch (error) {
-    console.error('Error removing from localStorage:', error);
-    return false;
-  }
-};
-
-// Limpiar todo el localStorage
-export const clearLocalStorage = () => {
-  try {
-    localStorage.clear();
-    return true;
-  } catch (error) {
-    console.error('Error clearing localStorage:', error);
-    return false;
-  }
-};
-
-// Funciones específicas para herramientas
+// --- Gestión de Herramientas ---
 export const saveTools = (tools) => {
-  return saveToLocalStorage(STORAGE_KEYS.TOOLS, tools);
+  try {
+    localStorage.setItem(TOOLS_KEY, JSON.stringify(tools));
+  } catch (error) {
+    console.error('Error guardando herramientas en localStorage:', error);
+  }
 };
 
 export const loadTools = () => {
-  return loadFromLocalStorage(STORAGE_KEYS.TOOLS, [
-    { id: 1, name: 'Martillo', category: 'Herramientas Manuales', brand: 'Stanley', availableStock: 8, totalStock: 10, status: 'Disponible' },
-    { id: 2, name: 'Destornillador', category: 'Herramientas Manuales', brand: 'Bosch', availableStock: 2, totalStock: 5, status: 'Bajo Stock' },
-    { id: 3, name: 'Taladro', category: 'Herramientas Eléctricas', brand: 'Makita', availableStock: 5, totalStock: 5, status: 'Disponible' },
-  ]);
+  try {
+    const tools = localStorage.getItem(TOOLS_KEY);
+    return tools ? JSON.parse(tools) : [];
+  } catch (error) {
+    console.error('Error cargando herramientas desde localStorage:', error);
+    return [];
+  }
 };
 
-// Funciones específicas para préstamos
-export const saveLoans = (loans) => {
-  return saveToLocalStorage(STORAGE_KEYS.LOANS, loans);
+// --- Gestión de Préstamos ---
+export const saveLoans = (loans) => localStorage.setItem(LOANS_KEY, JSON.stringify(loans));
+export const loadLoans = () => JSON.parse(localStorage.getItem(LOANS_KEY)) || [];
+
+// --- Gestión del Usuario Autenticado ---
+export const saveUser = (user) => localStorage.setItem(USER_KEY, JSON.stringify(user));
+export const loadUser = () => JSON.parse(localStorage.getItem(USER_KEY));
+export const removeUser = () => localStorage.removeItem(USER_KEY);
+
+// --- Gestión de la Lista Completa de Usuarios ---
+export const saveUsers = (users) => {
+  try {
+    localStorage.setItem(USERS_LIST_KEY, JSON.stringify(users));
+  } catch (error) {
+    console.error('Error guardando la lista de usuarios en localStorage:', error);
+  }
 };
 
-export const loadLoans = () => {
-  return loadFromLocalStorage(STORAGE_KEYS.LOANS, [
-    { id: 1, user: 'Juan Pérez', toolId: 1, toolName: 'Martillo', loanDate: '2023-10-01', returnDate: '2023-10-15', status: 'Activo' },
-    { id: 2, user: 'María García', toolId: 3, toolName: 'Taladro', loanDate: '2023-10-05', returnDate: '2023-10-20', status: 'Activo' },
-  ]);
+export const loadUsers = () => {
+  const users = localStorage.getItem(USERS_LIST_KEY);
+  return users ? JSON.parse(users) : null; // Devolvemos null si no hay nada
 };
-
-// Funciones específicas para usuario
-export const saveUser = (user) => {
-  return saveToLocalStorage(STORAGE_KEYS.USER, user);
-};
-
-export const loadUser = () => {
-  return loadFromLocalStorage(STORAGE_KEYS.USER, null);
-};
-
-export const removeUser = () => {
-  return removeFromLocalStorage(STORAGE_KEYS.USER);
-};
-
-const localStorageUtils = {
-  saveToLocalStorage,
-  loadFromLocalStorage,
-  removeFromLocalStorage,
-  clearLocalStorage,
-  saveTools,
-  loadTools,
-  saveLoans,
-  loadLoans,
-  saveUser,
-  loadUser,
-  removeUser,
-};
-
-export default localStorageUtils;

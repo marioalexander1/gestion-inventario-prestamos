@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Paper, TextField, Button, Typography, Alert, InputAdornment, IconButton } from '@mui/material';
+import { Box, Paper, TextField, Button, Typography, Alert, InputAdornment, IconButton, Avatar } from '@mui/material';
 import { Visibility, VisibilityOff, Login as LoginIcon } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Login.css';
@@ -7,9 +7,19 @@ import '../styles/Login.css';
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [userPhoto, setUserPhoto] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const { login, users } = useAuth();
+
+  const handleUsernameBlur = () => {
+    if (username) {
+      const foundUser = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+      setUserPhoto(foundUser?.photo || null);
+    } else {
+      setUserPhoto(null);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -33,13 +43,19 @@ function Login() {
   return (
     <Box className="login-container">
       <Paper className="login-paper" elevation={6}>
-        <Box className="login-header">
-          <LoginIcon sx={{ fontSize: 48, color: '#6C5CE7', mb: 2 }} />
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
+          {userPhoto ? (
+            <Avatar src={userPhoto} sx={{ width: 80, height: 80, mb: 2 }} />
+          ) : (
+            <Avatar sx={{ width: 80, height: 80, mb: 2, bgcolor: '#6C5CE7' }}>
+              <LoginIcon sx={{ fontSize: 48 }} />
+            </Avatar>
+          )}
           <Typography variant="h4" gutterBottom>
-            Sistema de Gestión
+            Bienvenido
           </Typography>
           <Typography variant="subtitle1" color="textSecondary">
-            Inventario y Préstamos
+            Inicia sesión para continuar
           </Typography>
         </Box>
 
@@ -56,6 +72,7 @@ function Login() {
             variant="outlined"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            onBlur={handleUsernameBlur}
             sx={{ mb: 2 }}
             autoFocus
           />

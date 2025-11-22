@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { saveUser, loadUser, removeUser } from '../utils/localStorage';
+import { saveUser, loadUser, removeUser, saveUsers, loadUsers } from '../utils/localStorage';
 
 const AuthContext = createContext();
 
@@ -18,6 +18,7 @@ const initialUsers = [
     username: 'admin',
     password: 'admin123',
     name: 'Administrador',
+    photo: null, // Campo para la foto de perfil
     role: 'admin',
     permissions: {
       puede_crear_inventario: true,
@@ -31,6 +32,7 @@ const initialUsers = [
     username: 'obed_alvarado',
     password: 'obed123',
     name: 'Obed Alvarado',
+    photo: null,
     role: 'user',
     permissions: {
       puede_crear_inventario: true,
@@ -44,8 +46,10 @@ const initialUsers = [
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState(initialUsers); // Estado para la lista de usuarios
+  // Carga usuarios desde localStorage o usa la lista inicial como fallback
+  const [users, setUsers] = useState(() => loadUsers() || initialUsers);
 
+  // Cargar usuario logueado al iniciar
   useEffect(() => {
     const savedUser = loadUser();
     if (savedUser) {
@@ -54,6 +58,11 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  // Guardar la lista de usuarios en localStorage cada vez que cambie
+  useEffect(() => {
+    saveUsers(users);
+  }, [users]);
+
   // Login
   const login = (username, password) => {
     const foundUser = users.find(
@@ -61,10 +70,12 @@ export const AuthProvider = ({ children }) => {
     );
 
     if (foundUser) {
+      // Guardamos solo la información necesaria y no sensible en el estado 'user'
       const userData = {
         username: foundUser.username,
         name: foundUser.name,
         role: foundUser.role,
+        photo: foundUser.photo,
         permissions: foundUser.permissions || {}, // Incluir permisos
         loginTime: new Date().toISOString(),
       };
@@ -75,6 +86,20 @@ export const AuthProvider = ({ children }) => {
 
     return { success: false, message: 'Usuario o contraseña incorrectos' };
   };
+
+  // Actualizar perfil de usuario (para la foto)
+  const updateUserProfile = (updatedData) => {
+    // Actualiza el usuario logueado actualmente
+    const updatedUser = { ...user, ...updatedData };
+    setUser(updatedUser);
+    saveUser(updatedUser);
+
+    // Actualiza la lista general de usuarios para persistencia
+    setUsers(currentUsers =>
+      currentUsers.map(u => (u.username === user.username ? { ...u, ...updatedData } : u))
+    );
+  };
+
 
   // Logout
   const logout = () => {
@@ -104,6 +129,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     users, // Exponemos la lista de usuarios
     setUsers, // Exponemos la función para actualizar usuarios
+    updateUserProfile, // Nueva función para actualizar el perfil
     login,
     logout,
     isAuthenticated,

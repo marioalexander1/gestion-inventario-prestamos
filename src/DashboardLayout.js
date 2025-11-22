@@ -17,6 +17,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  IconButton,
 } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import InventoryIcon from '@mui/icons-material/Inventory';
@@ -43,10 +44,11 @@ import { saveTools, loadTools, saveLoans, loadLoans } from './utils/localStorage
 const drawerWidth = 240;
 
 export default function DashboardLayout() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUserProfile } = useAuth();
   const notification = useNotification();
   const [selectedSection, setSelectedSection] = useState('inventory');
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [photoModalOpen, setPhotoModalOpen] = useState(false);
 
   // Estado global para herramientas y préstamos (compartido)
   const [tools, setTools] = useState([]);
@@ -76,16 +78,12 @@ export default function DashboardLayout() {
 
   // Guardar herramientas cuando cambien
   useEffect(() => {
-    if (tools.length > 0) {
-      saveTools(tools);
-    }
+    saveTools(tools);
   }, [tools]);
 
   // Guardar préstamos cuando cambien
   useEffect(() => {
-    if (loans.length > 0) {
-      saveLoans(loans);
-    }
+    saveLoans(loans);
   }, [loans]);
 
   const handleMenuClick = (key) => {
@@ -106,14 +104,38 @@ export default function DashboardLayout() {
     setLogoutDialogOpen(false);
   };
 
+  const handlePhotoChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64Photo = e.target.result;
+        updateUserProfile({ photo: base64Photo });
+        notification.success('Foto de perfil actualizada.');
+        setPhotoModalOpen(false);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const drawer = (
     <div style={{ backgroundColor: '#212F3D', height: '100%', color: '#BBE1FA' }}>
       <Toolbar sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
-        <Avatar sx={{ width: 64, height: 64, mb: 1, bgcolor: '#6C5CE7' }}>
-          {user?.name?.charAt(0) || 'U'}
-        </Avatar>
+        <IconButton onClick={() => setPhotoModalOpen(true)} sx={{ p: 0, mb: 1 }}>
+          <Avatar
+            src={user?.photo}
+            sx={{
+              width: 64,
+              height: 64,
+              bgcolor: '#6C5CE7',
+              cursor: 'pointer',
+              '&:hover': { opacity: 0.8 },
+            }}
+          >
+            {user?.name?.charAt(0) || 'U'}
+          </Avatar>
+        </IconButton>
         <Typography>{user?.name || 'Usuario'}</Typography>
-        <Typography color="success.main" fontSize={12}>Online</Typography>
       </Toolbar>
       <List>
         {menuItems.map(({ text, icon, key }) => (
@@ -203,6 +225,21 @@ export default function DashboardLayout() {
             Cerrar Sesión
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* Modal para cambiar foto */}
+      <Dialog open={photoModalOpen} onClose={() => setPhotoModalOpen(false)}>
+        <DialogTitle>Cambiar Foto de Perfil</DialogTitle>
+        <DialogContent>
+          <Typography gutterBottom>
+            Selecciona una nueva imagen para tu perfil.
+          </Typography>
+          <Button variant="contained" component="label">
+            Subir Archivo
+            <input type="file" hidden accept="image/*" onChange={handlePhotoChange} />
+          </Button>
+        </DialogContent>
+        <DialogActions><Button onClick={() => setPhotoModalOpen(false)}>Cancelar</Button></DialogActions>
       </Dialog>
     </Box>
   );
