@@ -25,6 +25,7 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import PrintIcon from '@mui/icons-material/Print';
 import HistoryIcon from '@mui/icons-material/History';
+import GroupIcon from '@mui/icons-material/Group';
 // Importa componentes separados
 import InventoryContent from './components/InventoryContent';
 import LoansContent from './components/LoansContent';
@@ -32,6 +33,7 @@ import ReportsContent from './components/ReportsContent';
 import AlertsContent from './components/AlertsContent';
 import GenerateReportsContent from './components/GenerateReportsContent';
 import HistoryContent from './components/HistoryContent';
+import UsersContent from './UsersContent';
 
 // Importar contexto y utilidades
 import { useAuth } from './context/AuthContext';
@@ -39,16 +41,6 @@ import { useNotification } from './context/NotificationContext';
 import { saveTools, loadTools, saveLoans, loadLoans } from './utils/localStorage';
 
 const drawerWidth = 240;
-
-const menuItems = [
-  { text: 'Inventario existente', icon: <InventoryIcon />, key: 'inventory' },
-  { text: 'Préstamos activos', icon: <AssignmentIcon />, key: 'loans' },
-  { text: 'Historial de préstamos', icon: <HistoryIcon />, key: 'history' },
-  { text: 'Reportes', icon: <AssessmentIcon />, key: 'reports' },
-  { text: 'Notificaciones', icon: <NotificationsIcon />, key: 'alerts' },
-  { text: 'Generar reportes', icon: <PrintIcon />, key: 'generate-reports' },
-  { text: 'Cerrar sesión', icon: <LogoutIcon />, key: 'logout' },
-];
 
 export default function DashboardLayout() {
   const { user, logout } = useAuth();
@@ -59,6 +51,19 @@ export default function DashboardLayout() {
   // Estado global para herramientas y préstamos (compartido)
   const [tools, setTools] = useState([]);
   const [loans, setLoans] = useState([]);
+
+  const allMenuItems = [
+    { text: 'Inventario', icon: <InventoryIcon />, key: 'inventory' },
+    { text: 'Préstamos', icon: <AssignmentIcon />, key: 'loans' },
+    { text: 'Historial', icon: <HistoryIcon />, key: 'history' },
+    { text: 'Usuarios', icon: <GroupIcon />, key: 'users', adminOnly: true },
+    { text: 'Reportes', icon: <AssessmentIcon />, key: 'reports' },
+    { text: 'Notificaciones', icon: <NotificationsIcon />, key: 'alerts' },
+    { text: 'Generar Reportes', icon: <PrintIcon />, key: 'generate-reports' },
+    { text: 'Cerrar Sesión', icon: <LogoutIcon />, key: 'logout' },
+  ];
+
+  const menuItems = allMenuItems.filter(item => !item.adminOnly || (item.adminOnly && user?.role === 'admin'));
 
   // Cargar datos desde localStorage al iniciar
   useEffect(() => {
@@ -140,6 +145,8 @@ export default function DashboardLayout() {
         return <InventoryContent tools={tools} setTools={setTools} />;
       case 'loans':
         return <LoansContent tools={tools} setTools={setTools} loans={loans} setLoans={setLoans} />;
+      case 'users':
+        return <UsersContent />;
       case 'history':
         return <HistoryContent loans={loans} />;
       case 'reports':

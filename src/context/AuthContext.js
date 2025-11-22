@@ -11,11 +11,41 @@ export const useAuth = () => {
   return context;
 };
 
+// Lista inicial de usuarios. En una app real, esto vendría de una base de datos.
+const initialUsers = [
+  {
+    id: 1,
+    username: 'admin',
+    password: 'admin123',
+    name: 'Administrador',
+    role: 'admin',
+    permissions: {
+      puede_crear_inventario: true,
+      puede_editar_inventario: true,
+      puede_eliminar_inventario: true,
+      puede_gestionar_prestamos: true,
+    },
+  },
+  {
+    id: 2,
+    username: 'obed_alvarado',
+    password: 'obed123',
+    name: 'Obed Alvarado',
+    role: 'user',
+    permissions: {
+      puede_crear_inventario: true,
+      puede_editar_inventario: true,
+      puede_eliminar_inventario: false, // Este usuario no puede eliminar
+      puede_gestionar_prestamos: true,
+    },
+  },
+];
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState(initialUsers); // Estado para la lista de usuarios
 
-  // Cargar usuario al iniciar
   useEffect(() => {
     const savedUser = loadUser();
     if (savedUser) {
@@ -26,13 +56,6 @@ export const AuthProvider = ({ children }) => {
 
   // Login
   const login = (username, password) => {
-    // Usuarios de prueba (en producción esto sería una llamada a API)
-    const users = [
-      { username: 'admin', password: 'admin123', name: 'Administrador', role: 'admin' },
-      { username: 'obed_alvarado', password: 'obed123', name: 'Obed Alvarado', role: 'user' },
-      { username: 'usuario', password: 'usuario123', name: 'Usuario Demo', role: 'user' },
-    ];
-
     const foundUser = users.find(
       (u) => u.username === username && u.password === password
     );
@@ -42,6 +65,7 @@ export const AuthProvider = ({ children }) => {
         username: foundUser.username,
         name: foundUser.name,
         role: foundUser.role,
+        permissions: foundUser.permissions || {}, // Incluir permisos
         loginTime: new Date().toISOString(),
       };
       setUser(userData);
@@ -68,13 +92,23 @@ export const AuthProvider = ({ children }) => {
     return user && user.role === role;
   };
 
+  // Verificar un permiso específico
+  const hasPermission = (permission) => {
+    // El admin siempre tiene todos los permisos
+    if (user?.role === 'admin') return true;
+    return user?.permissions?.[permission] || false;
+  };
+
   const value = {
     user,
     loading,
+    users, // Exponemos la lista de usuarios
+    setUsers, // Exponemos la función para actualizar usuarios
     login,
     logout,
     isAuthenticated,
     hasRole,
+    hasPermission, // Exponemos la nueva función
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
